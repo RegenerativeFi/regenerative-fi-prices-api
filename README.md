@@ -2,6 +2,8 @@
 
 This API provides token price data for **Celo only**, primarily sourced from GeckoTerminal with fallback to the Regenerative pools subgraph.
 
+**Live API:** [https://prices.regenerativefi.workers.dev/tokens](https://prices.regenerativefi.workers.dev/tokens)
+
 Deployed on **Cloudflare Workers** with a cron trigger to refresh prices every 2 minutes.
 
 ## Features
