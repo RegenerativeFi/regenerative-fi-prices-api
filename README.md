@@ -2,15 +2,15 @@
 
 This API provides token price data for **Celo only**, primarily sourced from GeckoTerminal with fallback to the Regenerative pools subgraph.
 
-**Live API:** [https://regenerative-prices.deno.dev/tokens](https://regenerative-prices.deno.dev/tokens)
+Deployed on **Cloudflare Workers** with a cron trigger to refresh prices every 2 minutes.
 
 ## Features
 
 - Fetches token prices for Celo (chain ID 42220)
 - Uses GeckoTerminal as the primary price source
 - Falls back to the Regenerative pools subgraph for certain tokens or when GeckoTerminal data is unavailable
-- Caches prices in a KV store for efficient retrieval
-- Updates prices every 2 minutes via a cron job
+- Caches prices in Cloudflare KV for efficient retrieval
+- Updates prices every 2 minutes via a Cloudflare Cron Trigger
 
 ## API Endpoints
 
@@ -32,43 +32,63 @@ Returns prices for all tokens on Celo (chain ID 42220).
 
 ## Development
 
-This project uses Deno for runtime and deployment.
+This project uses **Cloudflare Workers** with Wrangler.
 
 ### Prerequisites
 
-- Deno 1.34 or higher
+- Node.js 18+
+- A Cloudflare account
 
-### Local Development
+### First-time setup: KV namespace
 
-1. Clone the repository
-2. Run the development server:
+Create a KV namespace for caching prices and set its ID in `wrangler.toml`:
 
+```bash
+npx wrangler kv:namespace create PRICES_KV
 ```
-deno task start
+
+Copy the returned `id` and replace `REPLACE_WITH_YOUR_KV_NAMESPACE_ID` in `wrangler.toml` under `[[kv_namespaces]]`.
+
+For local development, create a preview namespace as well:
+
+```bash
+npx wrangler kv:namespace create PRICES_KV --preview
 ```
 
-### Deployment
+Add a `preview_id` under the same `[[kv_namespaces]]` in `wrangler.toml` if you want to test KV in dev.
 
-This API is designed to be deployed on Deno Deploy. Follow these steps:
+### Install and run
 
-1. Set up a project on Deno Deploy
-2. Link your GitHub repository
-3. Configure the project to use `main.ts` as the entry point
-4. Deploy!
+```bash
+bun install
+bun run dev
+```
+
+The API runs at `http://localhost:8787`. The cron does **not** run on a timer in dev; trigger it manually in either way:
+
+**Option A – dev route (easiest):**
+```bash
+curl http://localhost:8787/dev/trigger-cron
+```
+
+**Option B – Wrangler’s scheduled endpoint** (requires `--test-scheduled`):
+```bash
+curl "http://localhost:8787/__scheduled?cron=*+*+*+*+*"
+```
+
+### Deploy
+
+```bash
+bun run deploy
+```
+
+Ensure you’re logged in (`npx wrangler login`) and that the KV namespace ID in `wrangler.toml` matches the one created for your account.
 
 ## Configuration
 
-Key configuration options are stored in `src/config.ts`. Modify this file to adjust:
-
-- Subgraph URL (Regenerative pools subgraph on Goldsky)
-- Token list URL (Regenerative Celo token list)
-- Price update frequency
-- GeckoTerminal API settings
-
-## Contributing
-
-Contributions are welcome! Please feel free to submit a Pull Request.
+- **Cron schedule:** `wrangler.toml` → `[triggers]` → `crons` (default: every 2 minutes).
+- **App config:** `src/config.ts` — subgraph URL, token list URL, batch sizes, etc.
 
 ## License
 
-[MIT License](LICENSE)
+[MIT License](src/LICENSE)
