@@ -1,4 +1,4 @@
-import { SUBGRAPH_URLS } from "./config.ts";
+import { SUBGRAPH_URLS } from "./config";
 
 const priceQuery = `
   query getTokenPrices($tokenAddresses: [String!]!) {
@@ -11,7 +11,7 @@ const priceQuery = `
 
 export async function fetchPricesFromSubgraph(
   chainId: number,
-  tokenAddresses: string[]
+  tokenAddresses: string[],
 ): Promise<Record<string, string>> {
   const subgraphUrl = SUBGRAPH_URLS[chainId];
   if (!subgraphUrl) {
@@ -23,7 +23,7 @@ export async function fetchPricesFromSubgraph(
     console.log(
       "Fetching prices from subgraph for chainId",
       chainId,
-      subgraphUrl
+      subgraphUrl,
     );
     const response = await fetch(subgraphUrl, {
       method: "POST",
@@ -40,7 +40,7 @@ export async function fetchPricesFromSubgraph(
       throw new Error(`HTTP error! status: ${response.status}`);
     }
 
-    const data = await response.json();
+    const data = (await response.json()) as any;
     const prices: Record<string, string> = {};
     for (const token of data.data.tokens) {
       if (token.latestUSDPrice) {
@@ -51,7 +51,7 @@ export async function fetchPricesFromSubgraph(
   } catch (error) {
     console.error(
       `Failed to fetch prices from subgraph for chainId ${chainId}:`,
-      error
+      error,
     );
     return {};
   }

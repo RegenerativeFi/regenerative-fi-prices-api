@@ -1,10 +1,10 @@
 import { Hono } from "hono";
 import { cors } from "hono/cors";
 import type { Context } from "hono";
-import { fetchTokenAddresses } from "./tokenFetcher.ts";
-import { fetchPricesForNetwork } from "./priceFetcher.ts";
-import { groupTokensByChainId, isSubgraphOnlyNetwork } from "./utils.ts";
-import { KV_PRICE_KEY_PREFIX } from "./config.ts";
+import { fetchTokenAddresses } from "./tokenFetcher";
+import { fetchPricesForNetwork } from "./priceFetcher";
+import { groupTokensByChainId, isSubgraphOnlyNetwork } from "./utils";
+import { KV_PRICE_KEY_PREFIX } from "./config";
 
 const KV_KEY_PREFIX = `${KV_PRICE_KEY_PREFIX}:`;
 

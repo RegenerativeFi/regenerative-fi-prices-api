@@ -1,5 +1,5 @@
-import { Token, TokenList } from "./types.ts";
-import { TOKEN_LIST_URL } from "./config.ts";
+import { Token, TokenList } from "./types";
+import { TOKEN_LIST_URL } from "./config";
 
 export const fetchTokenAddresses = async (): Promise<Token[]> => {
   const response = await fetch(TOKEN_LIST_URL);

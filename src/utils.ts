@@ -1,18 +1,21 @@
-import { Token } from "./types.ts";
-import { SUPPORTED_CHAIN_IDS } from "./config.ts";
+import { Token } from "./types";
+import { SUPPORTED_CHAIN_IDS } from "./config";
 
 export const groupTokensByChainId = (
-  tokens: Token[]
+  tokens: Token[],
 ): Record<number, string[]> => {
-  return tokens.reduce((acc, token) => {
-    if (SUPPORTED_CHAIN_IDS.includes(token.chainId)) {
-      if (!acc[token.chainId]) {
-        acc[token.chainId] = [];
+  return tokens.reduce(
+    (acc, token) => {
+      if (SUPPORTED_CHAIN_IDS.includes(token.chainId)) {
+        if (!acc[token.chainId]) {
+          acc[token.chainId] = [];
+        }
+        acc[token.chainId].push(token.address);
       }
-      acc[token.chainId].push(token.address);
-    }
-    return acc;
-  }, {} as Record<number, string[]>);
+      return acc;
+    },
+    {} as Record<number, string[]>,
+  );
 };
 
 export const platform = (chainId: number): string => {

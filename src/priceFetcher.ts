@@ -1,18 +1,18 @@
-import { ApiResponse } from "./types.ts";
+import { ApiResponse } from "./types";
 import {
   FETCH_RETRY_ATTEMPTS,
   FETCH_RETRY_DELAY,
   GECKOTERMINAL_API_BASE_URL,
   GECKOTERMINAL_BATCH_SIZE,
   SUBGRAPH_ONLY_TOKENS,
-} from "./config.ts";
-import { fetchPricesFromSubgraph } from "./subgraphQueries.ts";
-import { platform } from "./utils.ts";
+} from "./config";
+import { fetchPricesFromSubgraph } from "./subgraphQueries";
+import { platform } from "./utils";
 
 export const fetchPricesForNetwork = async (
   chainId: number,
   addresses: string[],
-  subgraphOnly: boolean = false
+  subgraphOnly: boolean = false,
 ): Promise<Record<string, string>> => {
   const batchSize = GECKOTERMINAL_BATCH_SIZE;
   const batches = [];
@@ -24,20 +24,20 @@ export const fetchPricesForNetwork = async (
   }
 
   const fetchBatch = async (
-    batch: string[]
+    batch: string[],
   ): Promise<Record<string, string>> => {
     const prices: Record<string, string> = {};
     const geckoTerminalBatch = batch.filter(
-      (address) => !isSubgraphOnlyToken(chainId, address) && !subgraphOnly
+      (address) => !isSubgraphOnlyToken(chainId, address) && !subgraphOnly,
     );
     const subgraphOnlyBatch = batch.filter(
-      (address) => isSubgraphOnlyToken(chainId, address) || subgraphOnly
+      (address) => isSubgraphOnlyToken(chainId, address) || subgraphOnly,
     );
     // Fetch prices from GeckoTerminal for non-subgraph-only tokens
     if (geckoTerminalBatch.length > 0) {
       const addressString = geckoTerminalBatch.join(",");
       const url = `${GECKOTERMINAL_API_BASE_URL}/networks/${platform(
-        chainId
+        chainId,
       )}/tokens/multi/${addressString}`;
 
       for (let attempt = 0; attempt < maxRetries; attempt++) {
@@ -58,12 +58,12 @@ export const fetchPricesForNetwork = async (
         } catch (error) {
           console.error(
             `Attempt ${attempt + 1} failed for chainId ${chainId}:`,
-            error
+            error,
           );
 
           if (attempt === maxRetries - 1) {
             console.error(
-              `All attempts failed for chainId ${chainId}. Skipping GeckoTerminal batch.`
+              `All attempts failed for chainId ${chainId}. Skipping GeckoTerminal batch.`,
             );
           } else {
             console.log(`Retrying in ${retryDelay}ms...`);
@@ -81,7 +81,7 @@ export const fetchPricesForNetwork = async (
     if (subgraphBatch.length > 0) {
       const subgraphPrices = await fetchPricesFromSubgraph(
         chainId,
-        subgraphBatch
+        subgraphBatch,
       );
       Object.assign(prices, subgraphPrices);
     }
